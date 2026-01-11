@@ -1,16 +1,22 @@
 # NLP Sandbox: Interactive YouTube Subtitle System
 
-A complete reverse-engineering of Language Reactor's subtitle preprocessing pipeline. Fetch YouTube subtitles, extract word-level timing, and explore interactive subtitle playback with real-time video synchronization.
+A complete reverse-engineering of **Language Reactor's core functionality**:
+- Fetch YouTube subtitles with word-level timing
+- Real-time dictionary lookups on hover (via dioco.io)
+- Interactive subtitle playback with video synchronization
+- **Works with any video source**: YouTube, Vimeo, local files, DASH streams
 
 ## Features
 
 ✨ **Zero-Hardcoding Workflow** - Process any YouTube video with a single command
-🎬 **YouTube Integration** - Automatic subtitle fetching with multi-language support
+🎬 **Multi-Source Support** - YouTube, Vimeo, local files, DASH/HLS streams
 ⚙️ **Word-Level Preprocessing** - Extract precise timing for every word
+📖 **Hover-to-Translate** - Real-time dictionary integration (dioco.io)
 🎯 **Interactive Player** - Real-time highlighting, metadata sidebar, statistics
 📊 **Responsive Design** - Works on desktop and mobile
 🔍 **Click-to-Log** - Inspect word metadata in browser console
 ⏱️ **Video Sync** - Subtitles automatically highlight as they're spoken
+💾 **Smart Caching** - Minimize dictionary API calls with LRU cache
 
 ## Quick Start
 
@@ -38,6 +44,39 @@ python process_video.py "VIDEO_ID"  # Just the 11-char ID
 4. Generate `data/subs_precomputed.json`
 
 Then open `index.html` in your browser to view the interactive player.
+
+## 🎉 NEW: Language Reactor-Style Module
+
+The `SubtitleDictionary` module brings **hover-to-translate** functionality to any video:
+
+### Quick Start
+```html
+<video id="player" controls></video>
+<script src="subtitle-dictionary.js"></script>
+<script>
+  const dict = new SubtitleDictionary({
+    videoSelector: '#player',
+    subtitleSource: 'data/subs_precomputed.json'
+  });
+  await dict.init();
+</script>
+```
+
+### Features
+- 🎬 Works with **YouTube, Vimeo, local files, DASH streams**
+- 📖 **Real-time dictionary lookups** on word hover
+- ⚡ **Zero-latency subtitle display** (precomputed format)
+- 💾 **Smart caching** to minimize API calls
+- 🎨 **Beautiful tooltips** with smooth animations
+- 📊 **Analytics integration** (dioco.io)
+
+### Files
+- `subtitle-dictionary.js` - Main module (only JavaScript file needed)
+- `player-simple.html` - Example player with full UI controls
+- `SUBTITLE_DICTIONARY.md` - Complete module documentation
+- `QUICK_START.md` - 1-minute setup guide
+
+**→ See [QUICK_START.md](QUICK_START.md) for 30-second setup!**
 
 ## Project Structure
 
