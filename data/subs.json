@@ -1,0 +1,62 @@
+[
+  {
+    "start": 1.0,
+    "end": 3.0,
+    "tokens": [
+      {
+        "id": 1,
+        "text": "Hello,"
+      },
+      {
+        "id": 2,
+        "text": "welcome"
+      },
+      {
+        "id": 3,
+        "text": "to"
+      },
+      {
+        "id": 4,
+        "text": "the"
+      },
+      {
+        "id": 5,
+        "text": "NLP"
+      },
+      {
+        "id": 6,
+        "text": "sandbox."
+      }
+    ]
+  },
+  {
+    "start": 3.5,
+    "end": 6.0,
+    "tokens": [
+      {
+        "id": 7,
+        "text": "This"
+      },
+      {
+        "id": 8,
+        "text": "is"
+      },
+      {
+        "id": 9,
+        "text": "a"
+      },
+      {
+        "id": 10,
+        "text": "sample"
+      },
+      {
+        "id": 11,
+        "text": "subtitle"
+      },
+      {
+        "id": 12,
+        "text": "file."
+      }
+    ]
+  }
+]
