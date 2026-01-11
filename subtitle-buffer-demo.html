@@ -347,6 +347,9 @@
       if (btn) btn.disabled = true;
       if (btn) btn.textContent = '⏳ Initializing...';
 
+      // Defer heavy work to next event loop (lets browser paint UI changes)
+      await new Promise(resolve => setTimeout(resolve, 0));
+
       bufferManager = new BufferedSubtitleManager({
         videoElement: video,
         subtitleSelector: '#subtitle-display',
