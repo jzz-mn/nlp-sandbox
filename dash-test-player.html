@@ -445,6 +445,33 @@
     };
 
     /**
+     * Test 1: Video Loading
+     */
+    async function testVideoLoading(videoPath) {
+      const statusDiv = document.getElementById('test1-status');
+      
+      statusDiv.textContent = `⏳ Loading ${videoPath}...`;
+      statusDiv.className = 'status info';
+      statusDiv.style.display = 'block';
+
+      try {
+        const response = await fetch(videoPath, { method: 'HEAD' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const size = response.headers.get('content-length');
+        statusDiv.innerHTML = `
+          ✅ <strong>Video file accessible</strong><br>
+          File: ${videoPath}<br>
+          Size: ${(size / (1024 * 1024)).toFixed(2)} MB
+        `;
+        statusDiv.className = 'status success';
+      } catch (error) {
+        statusDiv.textContent = `⚠️ File not found: ${videoPath} - Use your own video or download a sample`;
+        statusDiv.className = 'status warning';
+      }
+    }
+
+    /**
      * Test 1: Load Local Video
      */
     async function loadLocalPlayer() {
@@ -575,16 +602,18 @@
         // Simulate dictionary fetch (same as module)
         const params = new URLSearchParams({
           form: word,
-          lemma: '',
           sl: 'ko',
-          tl: 'en',
-          pos: 'NOUN',
-          pow: 'n'
+          tl: 'en'
         });
 
         const response = await fetch(
           `https://api-cdn-plus.dioco.io/base_dict_getHoverDict_8?${params}`
         );
+        
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+        
         const data = await response.json();
         const duration = performance.now() - start;
 
@@ -631,20 +660,22 @@
       const words = ['안녕', '날씨', '음식', '문화', '한국'];
       const times = [];
 
-      for (const word of words) {
+        for (const word of words) {
         try {
           const start = performance.now();
           const params = new URLSearchParams({
             form: word,
             sl: 'ko',
-            tl: 'en',
-            pos: 'NOUN',
-            pow: 'n'
+            tl: 'en'
           });
 
-          await fetch(
+          const response = await fetch(
             `https://api-cdn-plus.dioco.io/base_dict_getHoverDict_8?${params}`
           );
+          
+          if (response.ok) {
+            await response.json();
+          }
 
           times.push(performance.now() - start);
         } catch (e) {
@@ -699,11 +730,12 @@
         const params1 = new URLSearchParams({
           form: word,
           sl: 'ko',
-          tl: 'en',
-          pos: 'NOUN',
-          pow: 'n'
+          tl: 'en'
         });
-        await fetch(`https://api-cdn-plus.dioco.io/base_dict_getHoverDict_8?${params1}`);
+        const response1 = await fetch(`https://api-cdn-plus.dioco.io/base_dict_getHoverDict_8?${params1}`);
+        if (response1.ok) {
+          await response1.json();
+        }
         firstTime = performance.now() - start;
 
         // Cached lookup (immediate)
