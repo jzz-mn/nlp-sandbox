@@ -137,3 +137,9 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Local media files (generated for testing)
+*.mp4
+*.webm
+*.avi
+*.mov
