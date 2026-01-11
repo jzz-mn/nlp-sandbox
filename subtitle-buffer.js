@@ -30,6 +30,10 @@ class BufferedSubtitleManager {
     this.maxBufferSize = options.maxBufferSize || 100;
     this.dictionaryAPI = options.dictionaryAPI || 'dioco';
     
+    // Manual timing mode: capture subtitles without active playback
+    this.manualTimingMode = options.manualTimingMode || false;
+    this.manualCurrentTime = options.manualCurrentTime || 0;
+    
     // Core buffers
     this.buffer = []; // Rolling buffer of captured subtitles
     this.dictionaryCache = new Map(); // word → definition
@@ -49,12 +53,29 @@ class BufferedSubtitleManager {
   }
 
   /**
+   * Get current playback time (supports both video playback and manual timing mode)
+   */
+  getCurrentTime() {
+    if (this.manualTimingMode) {
+      return this.manualCurrentTime;
+    }
+    return this.videoElement ? this.videoElement.currentTime : 0;
+  }
+
+  /**
+   * Set manual timing (for testing without video playback)
+   */
+  setManualTime(seconds) {
+    this.manualCurrentTime = seconds;
+  }
+
+  /**
    * Initialize the buffering system
    * Starts observing subtitle DOM mutations
    */
   async init() {
-    if (!this.videoElement) {
-      throw new Error('videoElement is required');
+    if (!this.videoElement && !this.manualTimingMode) {
+      throw new Error('videoElement is required (or set manualTimingMode: true)');
     }
 
     // Find subtitle container (works with Netflix, YouTube, DASH)
@@ -206,7 +227,7 @@ class BufferedSubtitleManager {
    * - T+300ms: User hovers (but word already cached!)
    */
   captureSubtitle(text) {
-    const currentTime = this.videoElement.currentTime;
+    const currentTime = this.getCurrentTime();
     const predictedStart = currentTime + this.predictionOffset;
 
     // Close previous cue

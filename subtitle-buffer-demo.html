@@ -227,6 +227,22 @@
         </video>
 
         <div class="control-group">
+          <label>Mode:</label>
+          <select id="mode-select" onchange="toggleMode()">
+            <option value="video">Video Playback (play video naturally)</option>
+            <option value="manual">Manual Timing (test without video)</option>
+          </select>
+        </div>
+
+        <div id="manual-timing-controls" style="display: none;">
+          <div class="control-group">
+            <label>Manual Time (seconds):</label>
+            <input type="number" id="manual-time" value="0" min="0" max="100" step="0.1">
+            <button onclick="updateManualTime()" style="margin-top: 5px;">⏱️ Update Time</button>
+          </div>
+        </div>
+
+        <div class="control-group">
           <label>Prediction Offset (seconds):</label>
           <input type="number" id="offset-input" value="0.4" min="0" max="2" step="0.1">
         </div>
@@ -308,6 +324,33 @@
     let bufferManager = null;
     let logEntries = [];
     const maxLogs = 50;
+    let currentMode = 'video';
+
+    /**
+     * Toggle between video playback and manual timing mode
+     */
+    function toggleMode() {
+      const mode = document.getElementById('mode-select').value;
+      currentMode = mode;
+      document.getElementById('manual-timing-controls').style.display = 
+        mode === 'manual' ? 'block' : 'none';
+      if (bufferManager) {
+        bufferManager.destroy();
+        bufferManager = null;
+      }
+    }
+
+    /**
+     * Update manual time
+     */
+    function updateManualTime() {
+      const time = parseFloat(document.getElementById('manual-time').value);
+      if (bufferManager && bufferManager.manualTimingMode) {
+        bufferManager.setManualTime(time);
+        updateStats();
+        addLog(`Manual time set to ${time.toFixed(2)}s`, 'info');
+      }
+    }
 
     /**
      * Add log entry (capped at maxLogs)
@@ -350,8 +393,10 @@
       // Defer heavy work to next event loop (lets browser paint UI changes)
       await new Promise(resolve => setTimeout(resolve, 0));
 
+      const isManualMode = currentMode === 'manual';
+      
       bufferManager = new BufferedSubtitleManager({
-        videoElement: video,
+        videoElement: isManualMode ? null : video,
         subtitleSelector: '#subtitle-display',
         language: 'ko',
         targetLanguage: 'en',
@@ -359,6 +404,8 @@
         driftThreshold: 0.3,
         maxBufferSize: 100,
         dictionaryAPI: 'dioco',
+        manualTimingMode: isManualMode,
+        manualCurrentTime: isManualMode ? 0 : undefined,
         onSubtitleCaptured: (data) => {
           addLog(`Captured: "${data.text.substring(0, 40)}..." (${data.tokens.length} words)`, 'capture');
           updateBufferDisplay();
@@ -372,7 +419,7 @@
 
       try {
         await bufferManager.init();
-        addLog('BufferedSubtitleManager initialized ✓', 'info');
+        addLog(`BufferedSubtitleManager initialized (${isManualMode ? 'manual timing' : 'video playback'}) ✓`, 'info');
         if (btn) btn.textContent = '✅ Running';
 
         // Update stats periodically
@@ -397,9 +444,10 @@
       document.getElementById('drift-value').textContent = stats.driftCorrection.toFixed(3) + 's';
 
       // Update active subtitle
-      const active = bufferManager.getActiveSubtitle(
-        document.getElementById('test-video').currentTime
-      );
+      const currentTime = currentMode === 'manual' 
+        ? bufferManager.manualCurrentTime 
+        : document.getElementById('test-video').currentTime;
+      const active = bufferManager.getActiveSubtitle(currentTime);
       const subtitleDisplay = document.getElementById('subtitle-display');
       
       if (active) {
@@ -416,7 +464,9 @@
       if (!bufferManager) return;
 
       const buffer = bufferManager.getBufferedSubtitles();
-      const currentTime = document.getElementById('test-video').currentTime;
+      const currentTime = currentMode === 'manual' 
+        ? bufferManager.manualCurrentTime 
+        : document.getElementById('test-video').currentTime;
       const display = document.getElementById('buffer-display');
 
       display.innerHTML = buffer.map((cue, idx) => {
