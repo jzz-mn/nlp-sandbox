@@ -342,6 +342,10 @@
     async function initBuffer() {
       const offset = parseFloat(document.getElementById('offset-input').value);
       const video = document.getElementById('test-video');
+      const btn = event?.target;
+      
+      if (btn) btn.disabled = true;
+      if (btn) btn.textContent = '⏳ Initializing...';
 
       bufferManager = new BufferedSubtitleManager({
         videoElement: video,
@@ -366,11 +370,14 @@
       try {
         await bufferManager.init();
         addLog('BufferedSubtitleManager initialized ✓', 'info');
+        if (btn) btn.textContent = '✅ Running';
 
         // Update stats periodically
         setInterval(updateStats, 500);
       } catch (error) {
         addLog(`Error: ${error.message}`, 'error');
+        if (btn) btn.disabled = false;
+        if (btn) btn.textContent = '🚀 Start Buffering';
       }
     }
 
