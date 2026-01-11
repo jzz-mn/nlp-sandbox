@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Language Reactor Style Player</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 900px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .player-section {
+      position: relative;
+      background: #000;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .controls {
+      padding: 20px;
+      background: #f5f5f5;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .control-group {
+      margin-bottom: 15px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .control-group input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .control-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #764ba2;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .stats {
+      margin-top: 15px;
+      padding: 12px;
+      background: white;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .info-banner {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #1976d2;
+      line-height: 1.5;
+    }
+
+    .status-message {
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status-loading {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="player-section">
+      <video id="video-player" controls></video>
+    </div>
+    <div class="controls">
+      <div class="info-banner">
+        💡 <strong>Language Reactor Style:</strong> Hover over subtitle words to see translations from dioco.io dictionary
+      </div>
+      
+      <div class="control-group">
+        <label>Video Source (YouTube URL, Vimeo, or DASH stream):</label>
+        <input type="text" id="video-url" placeholder="e.g., https://www.youtube.com/watch?v=..." value="">
+      </div>
+
+      <div class="control-group">
+        <label>Subtitle Source (JSON file path):</label>
+        <input type="text" id="subtitle-url" placeholder="e.g., data/subs_precomputed.json" value="data/subs_precomputed.json">
+      </div>
+
+      <div class="button-group">
+        <button onclick="initPlayer()" id="load-btn">Load Player</button>
+        <button onclick="toggleSubtitles()" id="toggle-btn" style="display:none;">Hide Subtitles</button>
+        <button onclick="clearCache()" id="clear-cache-btn" style="display:none;">Clear Cache</button>
+      </div>
+
+      <div class="stats" id="stats"></div>
+    </div>
+  </div>
+
+  <script src="subtitle-dictionary.js"></script>
+  <script>
+    let subtitleDict = null;
+
+    // Parse URL parameters
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const videoId = urlParams.get('v');
+      const subtitleUrl = urlParams.get('subs');
+
+      if (videoId) {
+        document.getElementById('video-url').value = videoId;
+      }
+      if (subtitleUrl) {
+        document.getElementById('subtitle-url').value = subtitleUrl;
+      }
+    });
+
+    async function initPlayer() {
+      const videoInput = document.getElementById('video-url').value;
+      const subtitleInput = document.getElementById('subtitle-url').value;
+
+      if (!videoInput || !subtitleInput) {
+        showStatus('Please enter both video URL and subtitle source', 'error');
+        return;
+      }
+
+      showStatus('⏳ Initializing...', 'loading');
+
+      try {
+        // Destroy previous instance
+        if (subtitleDict) {
+          subtitleDict.destroy();
+        }
+
+        // Handle different video sources
+        const videoElement = document.getElementById('video-player');
+        let videoSrc = videoInput;
+
+        // YouTube handling
+        if (videoInput.includes('youtube.com') || videoInput.includes('youtu.be')) {
+          const match = videoInput.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+          const videoId = match ? match[1] : videoInput;
+          videoSrc = `https://www.youtube.com/embed/${videoId}`;
+        }
+
+        // Vimeo handling
+        else if (videoInput.includes('vimeo.com')) {
+          const match = videoInput.match(/vimeo\.com\/(\d+)/);
+          const videoId = match ? match[1] : videoInput;
+          videoSrc = `https://player.vimeo.com/video/${videoId}`;
+        }
+
+        // Direct file or DASH stream
+        // (leave as-is)
+
+        videoElement.src = videoSrc;
+
+        // Initialize SubtitleDictionary
+        subtitleDict = new SubtitleDictionary({
+          videoSelector: '#video-player',
+          subtitleSource: subtitleInput,
+          language: 'ko',
+          targetLanguage: 'en',
+          tooltipDelay: 300
+        });
+
+        const success = await subtitleDict.init();
+
+        if (success) {
+          const stats = subtitleDict.getStats();
+          showStatus(
+            `✅ Ready! Loaded ${stats.subtitlesLoaded} words | Dictionary cache: ${stats.cacheSize} entries`,
+            'success'
+          );
+          document.getElementById('toggle-btn').style.display = 'inline-block';
+          document.getElementById('clear-cache-btn').style.display = 'inline-block';
+        } else {
+          showStatus('⚠️ Player loaded but subtitles could not be displayed', 'error');
+        }
+
+      } catch (error) {
+        console.error('Initialization error:', error);
+        showStatus('❌ Error: ' + error.message, 'error');
+      }
+    }
+
+    function toggleSubtitles() {
+      const display = document.querySelector('.subtitle-dictionary-display');
+      if (display) {
+        const isHidden = display.style.display === 'none';
+        display.style.display = isHidden ? 'flex' : 'none';
+        document.getElementById('toggle-btn').textContent = isHidden ? 'Hide Subtitles' : 'Show Subtitles';
+      }
+    }
+
+    function clearCache() {
+      if (subtitleDict) {
+        subtitleDict.clearCache();
+        showStatus('🗑️ Cache cleared', 'success');
+      }
+    }
+
+    function showStatus(message, type) {
+      const statsDiv = document.getElementById('stats');
+      statsDiv.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+    }
+  </script>
+</body>
+</html>
