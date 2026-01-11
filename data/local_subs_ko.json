@@ -1,0 +1,79 @@
+[
+  {
+    "word_id": 0,
+    "word": "안녕하세요",
+    "start": 0,
+    "end": 2,
+    "sentence_id": 0
+  },
+  {
+    "word_id": 1,
+    "word": "반갑습니다",
+    "start": 2,
+    "end": 4,
+    "sentence_id": 1
+  },
+  {
+    "word_id": 2,
+    "word": "오늘",
+    "start": 4,
+    "end": 4.8,
+    "sentence_id": 2
+  },
+  {
+    "word_id": 3,
+    "word": "날씨",
+    "start": 4.8,
+    "end": 5.4,
+    "sentence_id": 2
+  },
+  {
+    "word_id": 4,
+    "word": "좋네요",
+    "start": 5.4,
+    "end": 6,
+    "sentence_id": 2
+  },
+  {
+    "word_id": 5,
+    "word": "맛있는",
+    "start": 6,
+    "end": 6.8,
+    "sentence_id": 3
+  },
+  {
+    "word_id": 6,
+    "word": "음식",
+    "start": 6.8,
+    "end": 7.5,
+    "sentence_id": 3
+  },
+  {
+    "word_id": 7,
+    "word": "먹었어요",
+    "start": 7.5,
+    "end": 8.5,
+    "sentence_id": 3
+  },
+  {
+    "word_id": 8,
+    "word": "한국",
+    "start": 8.5,
+    "end": 9.2,
+    "sentence_id": 4
+  },
+  {
+    "word_id": 9,
+    "word": "문화",
+    "start": 9.2,
+    "end": 10,
+    "sentence_id": 4
+  },
+  {
+    "word_id": 10,
+    "word": "흥미로워요",
+    "start": 10,
+    "end": 11,
+    "sentence_id": 4
+  }
+]

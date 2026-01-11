@@ -1,0 +1,79 @@
+[
+  {
+    "word_id": 0,
+    "word": "Hello",
+    "start": 0,
+    "end": 2,
+    "sentence_id": 0
+  },
+  {
+    "word_id": 1,
+    "word": "Nice",
+    "start": 2,
+    "end": 2.5,
+    "sentence_id": 1
+  },
+  {
+    "word_id": 2,
+    "word": "to",
+    "start": 2.5,
+    "end": 2.8,
+    "sentence_id": 1
+  },
+  {
+    "word_id": 3,
+    "word": "meet",
+    "start": 2.8,
+    "end": 4,
+    "sentence_id": 1
+  },
+  {
+    "word_id": 4,
+    "word": "Today",
+    "start": 4,
+    "end": 4.5,
+    "sentence_id": 2
+  },
+  {
+    "word_id": 5,
+    "word": "is",
+    "start": 4.5,
+    "end": 4.8,
+    "sentence_id": 2
+  },
+  {
+    "word_id": 6,
+    "word": "beautiful",
+    "start": 4.8,
+    "end": 6,
+    "sentence_id": 2
+  },
+  {
+    "word_id": 7,
+    "word": "Delicious",
+    "start": 6,
+    "end": 6.8,
+    "sentence_id": 3
+  },
+  {
+    "word_id": 8,
+    "word": "food",
+    "start": 6.8,
+    "end": 7.5,
+    "sentence_id": 3
+  },
+  {
+    "word_id": 9,
+    "word": "Korean",
+    "start": 8.5,
+    "end": 9.2,
+    "sentence_id": 4
+  },
+  {
+    "word_id": 10,
+    "word": "culture",
+    "start": 9.2,
+    "end": 10,
+    "sentence_id": 4
+  }
+]
